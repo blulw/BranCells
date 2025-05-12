@@ -1,0 +1,197 @@
+--Creates an atlas for cards to use
+SMODS.Atlas {
+	-- Key for code to find it with
+	key = "BranCells",
+	-- The name of the file, for the code to pull the atlas from
+	path = "jokers.png",
+	-- Width of each sprite in 1x size
+	px = 71,
+	-- Height of each sprite in 1x size
+	py = 95
+}
+--Creates an atlas for cards to use
+SMODS.Atlas {
+	-- Key for code to find it with
+	key = "modicon",
+	-- The name of the file, for the code to pull the atlas from
+	path = "icon.png",
+	-- Width of each sprite in 1x size
+	px = 32,
+	-- Height of each sprite in 1x size
+	py = 32
+}
+
+
+
+SMODS.Joker {
+	key = 'RNA',
+	blueprint_compat = true,
+	loc_txt = {
+		name = 'RNA',
+		text = {
+			"If {C:attention}first discard {}of round",
+			"has only {C:attention}1{} card, add a",
+			"permanent copy to deck",
+			"and draw it to {C:attention}hand"
+		}
+	},
+	rarity = 3,
+	-- Which atlas key to pull from.
+	atlas = 'BranCells',
+	-- This card's position on the atlas, starting at {x=0,y=0} for the very top left.
+	pos = { x = 0, y = 0 },
+	-- Cost of card in shop.
+	cost = 6,
+	-- The functioning part of the joker, looks at context to decide what step of scoring the game is on, and then gives a 'return' value if something activates.
+	calculate = function(self, card, context)
+        if context.first_hand_drawn and not context.blueprint then
+            local eval = function()
+                return G.GAME.current_round.discards_used == 0 and not G.RESET_JIGGLES
+            end
+            juice_card_until(card, eval, true)
+        end
+        if context.discard and context.full_hand and G.GAME.current_round.discards_used == 0 then
+            if #context.full_hand == 1 then
+                G.playing_card = (G.playing_card and G.playing_card + 1) or 1
+				local copy_card = copy_card(context.full_hand[1], nil, nil, G.playing_card)
+				copy_card:add_to_deck()
+				G.deck.config.card_limit = G.deck.config.card_limit + 1
+				table.insert(G.playing_cards, copy_card)
+				G.hand:emplace(copy_card)
+				copy_card.states.visible = nil
+
+				G.E_MANAGER:add_event(Event({
+					func = function()
+						copy_card:start_materialize()
+						return true
+					end
+				}))
+				return {
+					message = localize('k_copied_ex'),
+					colour = G.C.CHIPS,
+					func = function() -- This is for timing purposes, it runs after the message
+						G.E_MANAGER:add_event(Event({
+							func = function()
+								SMODS.calculate_context({ playing_card_added = true, cards = { copy_card } })
+								return true
+							end
+						}))
+					end
+				}
+            end
+        end
+    end
+}
+
+SMODS.Joker {
+	key = 'Apoptosis',
+	blueprint_compat = false,
+	loc_txt = {
+		name = 'Apoptosis',
+		text = {
+			"On {C:attention}last discard {}of round",
+			"{C:mult}destroy{} all discarded cards"
+		}
+	},
+	rarity = 2,
+	-- Which atlas key to pull from.
+	atlas = 'BranCells',
+	-- This card's position on the atlas, starting at {x=0,y=0} for the very top left.
+	pos = { x = 1, y = 0 },
+	-- Cost of card in shop.
+	cost = 6,
+	-- The functioning part of the joker, looks at context to decide what step of scoring the game is on, and then gives a 'return' value if something activates.
+    calculate = function(self, card, context)
+		if G.GAME.current_round.discards_left == 2 then
+			local eval = function() return G.GAME.current_round.discards_left == 1 end
+			juice_card_until(card, eval, true)
+		end
+		
+		if context.discard and not context.blueprint then
+			if G.GAME.current_round.discards_left == 1 then
+				return {
+					remove = true,
+					card = context.other_card
+				}
+			end
+		end
+	end
+}
+
+SMODS.Joker {
+    key = "Virus",
+	loc_txt = {
+		name = 'Virus',
+		text = {
+			"If played hand is a {C:attention}pair, ",
+			"spread enhancement from the",
+			"first {C:attention}scored card{} to the other"
+		}
+	},
+    blueprint_compat = false,
+	atlas = 'BranCells',
+    rarity = 2,
+    cost = 6,
+    pos = { x = 2, y = 0 },
+    calculate = function(self, card, context)
+        if context.before and context.main_eval and context.scoring_name == 'Pair' then
+            local first_card = context.scoring_hand[1]
+            local enhancements = SMODS.get_enhancements(first_card)
+            local upgraded = false
+            for i, scored_card in ipairs(context.scoring_hand) do
+                if i > 1 then
+                    for enhancement in pairs(enhancements) do
+                        scored_card:set_ability(enhancement, nil, true)
+                        if enhancement ~= "m_base" then
+                            upgraded = true
+                        end
+                    end
+                    scored_card:juice_up()
+                end
+            end
+            if upgraded then
+                return {
+                    message = localize('k_upgrade_ex'),
+                    colour = G.C.CHIPS,
+                }
+            end
+        end
+    end
+}
+
+SMODS.Joker {
+    key = "Lactic",
+	atlas = "BranCells",
+    blueprint_compat = true,
+    perishable_compat = false,
+    rarity = 2,
+    cost = 6,
+    pos = { x = 0, y = 1 },
+    config = { extra = { mult = 0, mult_mod = 5 } },
+	loc_txt = {
+		name = 'Lactic Acid',
+		text = {
+			"Gains {C:mult}+#2#{} Mult",
+			"if played hand",
+			"contains a {C:attention}Straight{}",
+			"{C:inactive}(Currently {C:mult}+#1#{C:inactive} Mult)"
+		}
+	},
+    loc_vars = function(self, info_queue, card)
+        return { vars = { card.ability.extra.mult, card.ability.extra.mult_mod } }
+    end,
+    calculate = function(self, card, context)
+        if context.before and context.main_eval and not context.blueprint and next(context.poker_hands['Straight']) then
+            card.ability.extra.mult = card.ability.extra.mult + card.ability.extra.mult_mod
+            return {
+                message = localize('k_upgrade_ex'),
+                colour = G.C.MULT,
+            }
+        end
+        if context.joker_main then
+            return {
+                mult = card.ability.extra.mult
+            }
+        end
+    end
+}
