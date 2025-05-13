@@ -19,3 +19,11 @@ Balatro mod that adds science based jokers
 <h2>Lactic Acid</h2>
 <h3>Gains +5 Mult if played hand contains a Straight</h3>
 <img src="https://github.com/blulw/BranCells/blob/main/assets/2x/Lactic.png?raw=true">
+
+<h2>Patient Zero</h2>
+<h3>If first hand of round has only 1 card, add the Infected enhancement to it</h3>
+<img src="https://github.com/blulw/BranCells/blob/main/assets/2x/PatientZero.png?raw=true"
+
+<h2>Infected (Enhancement</h2>
+<h3>When scored, increase Chips by Chips of all other scored infected cards</h3>
+<img src="https://github.com/blulw/BranCells/blob/main/assets/2x/Enhancers.png?raw=true">
