@@ -21,6 +21,16 @@ SMODS.Atlas {
 	py = 32
 }
 
+SMODS.Atlas {
+	
+	key = "BranEnhancements",
+
+	path = "Enhancers.png",
+
+	px = 71,
+
+	py = 95
+}
 
 
 SMODS.Joker {
@@ -125,7 +135,7 @@ SMODS.Joker {
 		text = {
 			"If played hand is a {C:attention}pair, ",
 			"spread enhancement from the",
-			"first {C:attention}scored card{} to the other"
+			"first {C:attention}scored card{} to all others"
 		}
 	},
     blueprint_compat = false,
@@ -195,3 +205,74 @@ SMODS.Joker {
         end
     end
 }
+
+SMODS.Joker {
+    key = "PatientZero",
+	atlas = "BranCells",
+    blueprint_compat = false,
+    perishable_compat = true,
+    rarity = 1,
+    cost = 5,
+    pos = { x = 1, y = 1 },
+	loc_txt = {
+		name = 'Patient Zero',
+		text = {
+			"If {C:attention}first hand{} of round has",
+			"only {C:attention}1{} card, add the",
+			"{C:attention}Infected{} enhancement to it"
+		}
+	},
+    calculate = function(self, card, context)
+        if context.first_hand_drawn and not context.blueprint then
+            local eval = function() return G.GAME.current_round.hands_played == 0 and not G.RESET_JIGGLES end
+            juice_card_until(card, eval, true)
+        end
+        if context.before and context.main_eval and G.GAME.current_round.hands_played == 0 and #context.full_hand == 1 then
+            for i, scored_card in ipairs(context.scoring_hand) do
+				scored_card:set_ability("m_bran_Infected", nil, true)
+			end
+        end
+    end
+}
+
+SMODS.Enhancement({
+	key = "Infected",
+	atlas = "BranEnhancements",
+	pos = { x = 0, y = 0 },
+	loc_txt = {
+		name = 'Infected',
+		text = {
+			"When scored, increase {C:chips}Chips",
+			"by {C:chips}Chips{} of all other {C:attention}scored",
+			"{C:attention}infected cards",
+			"{C:inactive}(Currently {C:chips}+#1#{C:inactive} Chips)"
+		}
+	},
+	config = { extra = { chips = 5, chips_mod = 0 } },
+	loc_vars = function(self, info_queue, card)
+		return { vars = { card.ability.extra.chips, card.ability.extra.chips_mod } }
+	end,
+	calculate = function(self, card, context, effect)
+		if context.main_scoring and context.cardarea == G.play then
+			for i, scored_card in ipairs(context.scoring_hand) do
+				if scored_card ~= card then
+					enhancements = SMODS.get_enhancements(scored_card)
+					for enhancement in pairs(enhancements) do
+						if enhancement == "m_bran_Infected" then
+							card.ability.extra.chips_mod = scored_card.ability.extra.chips
+							card.ability.extra.chips = card.ability.extra.chips + card.ability.extra.chips_mod
+							scored_card:juice_up()
+							return{
+								message = localize('k_upgrade_ex'),
+								colour = G.C.CHIPS,
+							}
+						end
+					end
+				end
+			end
+			return {
+				chips = card.ability.extra.chips
+			}
+            end
+		end
+})
