@@ -254,24 +254,23 @@ SMODS.Enhancement({
 	end,
 	calculate = function(self, card, context, effect)
 		if context.main_scoring and context.cardarea == G.play then
+			card.ability.extra.chips_mod = 0
 			for i, scored_card in ipairs(context.scoring_hand) do
 				if scored_card ~= card then
 					enhancements = SMODS.get_enhancements(scored_card)
 					for enhancement in pairs(enhancements) do
 						if enhancement == "m_bran_Infected" then
-							card.ability.extra.chips_mod = scored_card.ability.extra.chips
-							card.ability.extra.chips = card.ability.extra.chips + card.ability.extra.chips_mod
-							scored_card:juice_up()
-							return{
-								message = localize('k_upgrade_ex'),
-								colour = G.C.CHIPS,
-							}
+							card.ability.extra.chips_mod = card.ability.extra.chips_mod + scored_card.ability.extra.chips
 						end
 					end
 				end
 			end
-			return {
-				chips = card.ability.extra.chips
+			card.ability.extra.chips = card.ability.extra.chips + card.ability.extra.chips_mod
+			card:juice_up()
+			return{
+				message = localize('k_upgrade_ex'),
+				colour = G.C.CHIPS,
+				chips = card.ability.extra.chips,
 			}
             end
 		end
