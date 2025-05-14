@@ -257,7 +257,7 @@ SMODS.Enhancement({
 			card.ability.extra.chips_mod = 0
 			for i, scored_card in ipairs(context.scoring_hand) do
 				if scored_card ~= card then
-					enhancements = SMODS.get_enhancements(scored_card)
+					local enhancements = SMODS.get_enhancements(scored_card)
 					for enhancement in pairs(enhancements) do
 						if enhancement == "m_bran_Infected" then
 							card.ability.extra.chips_mod = card.ability.extra.chips_mod + scored_card.ability.extra.chips
@@ -275,3 +275,29 @@ SMODS.Enhancement({
             end
 		end
 })
+
+SMODS.Back{
+	key = "Outbreak", 
+	pos = {x = 0, y = 0},
+    atlas = 'BranEnhancements',
+	loc_txt = {
+		name = 'Outbreak Deck',
+		text = {
+			"Start run with",
+			"{C:attention}Patient Zero{} and {C:attention}Virus"
+		}
+	},
+	
+	unlocked = true,
+
+    apply = function(self)
+		G.E_MANAGER:add_event(Event({
+			func = function()
+				SMODS.add_card({ key = "j_bran_PatientZero" })
+				SMODS.add_card({ key = "j_bran_Virus" })
+
+				return true
+			end
+		}))
+    end
+}
