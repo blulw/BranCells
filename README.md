@@ -1,5 +1,6 @@
 if you can do balatro themed pixel art please dm me on discord (ashbluegutierrez)
 <br>
+
 # BranCells
 
 Balatro mod that adds science based jokers
@@ -24,6 +25,10 @@ Balatro mod that adds science based jokers
 <h3>If first hand of round has only 1 card, add the Infected enhancement to it</h3>
 <img src="https://github.com/blulw/BranCells/blob/main/assets/2x/PatientZero.png?raw=true"
 
-<h2>Infected (Enhancement</h2>
+<h2>Infected (Enhancement)</h2>
 <h3>When scored, increase Chips by Chips of all other scored infected cards</h3>
+<img src="https://github.com/blulw/BranCells/blob/main/assets/2x/Enhancers.png?raw=true">
+
+<h2>Outbreak (Deck)</h2>
+<h3>Start run with Patient Zero and Virus</h3>
 <img src="https://github.com/blulw/BranCells/blob/main/assets/2x/Enhancers.png?raw=true">
