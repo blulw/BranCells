@@ -235,6 +235,54 @@ SMODS.Joker {
     end
 }
 
+SMODS.Joker {
+    key = "InfectedJoker",
+    blueprint_compat = true,
+    rarity = 2,
+    cost = 7,
+    pos = { x = 2, y = 2 },
+	loc_txt = {
+		name = 'Infected Joker',
+		text = {
+			"Gives {X:mult,C:white}X0.5{} Mult",
+			"for each {C:attention}Infected Card{}",
+			"in your {c:attention}full deck",
+			"{C:inactive}(Currently {X:mult,C:white}X#2#{C:inactive} Mult)"
+		}
+	},
+    config = { extra = { xmult = 0.5 } },
+    loc_vars = function(self, info_queue, card)
+        info_queue[#info_queue + 1] = G.P_CENTERS.m_bran_Infected
+
+        local infected_count = 0
+        if G.playing_cards then
+            for _, playing_card in ipairs(G.playing_cards) do
+                if SMODS.has_enhancement(playing_card, 'm_bran_Infected') then infected_count = infected_count + 1 end
+            end
+        end
+        return { vars = { card.ability.extra.xmult, 1 + card.ability.extra.xmult * infected_count } }
+    end,
+    calculate = function(self, card, context)
+        if context.joker_main then
+            local infected_count = 0
+            for _, playing_card in ipairs(G.playing_cards) do
+                if SMODS.has_enhancement(playing_card, 'm_bran_Infected') then infected_count = infected_count + 1 end
+            end
+            return {
+                Xmult = 1 + card.ability.extra.xmult * infected_count,
+            }
+        end
+    end,
+    in_pool = function(self, args)
+        for _, playing_card in ipairs(G.playing_cards or {}) do
+            if SMODS.has_enhancement(playing_card, 'm_bran_Infected') then
+                return true
+            end
+        end
+        return false
+    end
+}
+
 SMODS.Enhancement({
 	key = "Infected",
 	atlas = "BranEnhancements",
