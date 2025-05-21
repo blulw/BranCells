@@ -138,6 +138,9 @@ SMODS.Joker {
 			"first {C:attention}scored card{} to all others"
 		}
 	},
+	set_badges = function(self, card, badges)
+		badges[#badges+1] = create_badge("Art - Raumfist", G.C.BLACK, G.C.WHITE, 0.8 )
+	end,
     blueprint_compat = false,
 	atlas = 'BranCells',
     rarity = 2,
@@ -178,6 +181,9 @@ SMODS.Joker {
     cost = 6,
     pos = { x = 0, y = 1 },
     config = { extra = { mult = 0, mult_mod = 5 } },
+	set_badges = function(self, card, badges)
+		badges[#badges+1] = create_badge("Art - Raumfist", G.C.BLACK, G.C.WHITE, 0.8 )
+	end,
 	loc_txt = {
 		name = 'Lactic Acid',
 		text = {
