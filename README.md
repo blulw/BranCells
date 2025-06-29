@@ -31,4 +31,4 @@ Balatro mod that adds science based jokers
 
 <h2>Outbreak (Deck)</h2>
 <h3>Start run with Patient Zero and Virus</h3>
-<img src="https://github.com/blulw/BranCells/blob/main/assets/2x/Enhancers.png?raw=true">
+<img src="https://github.com/blulw/BranCells/blob/main/assets/2x/Decks.png?raw=true">

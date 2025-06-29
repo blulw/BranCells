@@ -32,6 +32,17 @@ SMODS.Atlas {
 	py = 95
 }
 
+SMODS.Atlas {
+	
+	key = "BranDecks",
+
+	path = "Decks.png",
+
+	px = 71,
+
+	py = 95
+}
+
 
 SMODS.Joker {
 	key = 'RNA',
@@ -333,7 +344,7 @@ SMODS.Enhancement({
 SMODS.Back{
 	key = "Outbreak", 
 	pos = {x = 0, y = 0},
-    atlas = 'BranEnhancements',
+    atlas = 'BranDecks',
 	loc_txt = {
 		name = 'Outbreak Deck',
 		text = {
